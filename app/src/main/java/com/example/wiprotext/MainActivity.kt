@@ -6,28 +6,30 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wiprotext.module.DataMeme
-import com.example.wiprotext.module.MemesRespond
+import com.example.wiprotext.module.Meme
 import com.example.wiprotext.ui.theme.WiproTextTheme
 import com.example.wiprotext.viewmodel.MainActivityViewModel
-import kotlinx.coroutines.launch
+import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
 
@@ -77,21 +79,46 @@ fun GreetingPreview() {
 fun Hello(viewModel: MainActivityViewModel) {
 
     // Observe the API data
-   // val apiData = viewModel.api.observe()
+    val apiDataState by viewModel.api.observeAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = viewModel) {
-        coroutineScope.launch {
-            val result = viewModel.api
-       //     apiData = result.value // Update the mutable state with the API data
-        }
+    if (apiDataState != null){
+        apiDataState!!.data.meme?.let { MemeList(it) }
+    } else {
+        Text(text = "Loading ...")
     }
 
+
 }
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MemeList(memeList: List<Meme>) {
+
+    LazyVerticalStaggeredGrid(modifier = Modifier.padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        columns = StaggeredGridCells.Fixed(1),
+        content = {
+            items(memeList) {
+                MemeCard(it)
+            }
+        })
+}
+
 
 @Composable
-fun MemeData(data: DataMeme) {
-
+fun MemeCard(meme: Meme) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = meme.name ?: "No Name"
+            )
+        }
+    }
 }
+
+
 //ravish.jaiswal@wipro.com
