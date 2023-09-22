@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -21,10 +22,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.wiprotext.module.Meme
 import com.example.wiprotext.ui.theme.WiproTextTheme
+import com.example.wiprotext.util.Screen
 import com.example.wiprotext.viewmodel.MainActivityViewModel
 
 class MainActivity : ComponentActivity() {
@@ -43,7 +50,27 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MemeList(viewModel)
+
+                    val navController = rememberNavController()
+
+                    NavHost(navController = navController, startDestination = "home"){
+                        composable(route = "home"){
+                            MemeList(viewModel,navController)
+                        }
+                        composable(route = Screen.DetailScreen.route + "/{name}",
+                            arguments = listOf(
+                                navArgument("name"){
+                                    type = NavType.StringType
+                                    defaultValue = "Loading..."
+                                    nullable = true
+                                }
+                            )
+                            ){ entry ->
+                            DetailScreen(name = entry.arguments?.getString("name"))
+                        }
+                    }
+
+
 
                 }
             }
@@ -51,30 +78,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WiproTextTheme {
-        Greeting("Android")
-    }
-}
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MemeList(viewModel: MainActivityViewModel) {
+fun MemeList(viewModel: MainActivityViewModel,navController: NavController) {
 
     // Observe the API data
     val apiDataState by viewModel.api.observeAsState()
 
     if (apiDataState != null){
-        apiDataState!!.data.meme?.let { MemeList(it) }
+        apiDataState!!.data.meme?.let { MemeAllList(it,navController) }
     } else {
         Text(text = "Loading ...")
     }
@@ -83,24 +95,29 @@ fun MemeList(viewModel: MainActivityViewModel) {
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MemeList(memeList: List<Meme>) {
+fun MemeAllList(memeList: List<Meme>,navController: NavController) {
 
     LazyVerticalStaggeredGrid(modifier = Modifier.padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         columns = StaggeredGridCells.Fixed(1),
         content = {
-            items(memeList) {
-                MemeCard(it)
+            items(memeList) {meme ->
+                MemeCard(meme, navController)
             }
         })
 }
 
 
 @Composable
-fun MemeCard(meme: Meme) {
+fun MemeCard(meme: Meme,navController: NavController) {
+
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate(Screen.DetailScreen.withArgs(meme.name))
+            }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -110,6 +127,11 @@ fun MemeCard(meme: Meme) {
             )
         }
     }
+}
+
+@Composable
+fun DetailScreen(name: String?) {
+    Text(text = "Hello, $name")
 }
 
 
