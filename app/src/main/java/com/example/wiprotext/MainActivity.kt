@@ -8,9 +8,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -57,8 +59,13 @@ class MainActivity : ComponentActivity() {
                         composable(route = "home"){
                             MemeList(viewModel,navController)
                         }
-                        composable(route = Screen.DetailScreen.route + "/{name}",
+                        composable(route = Screen.DetailScreen.route + "/{id}/{name}",
                             arguments = listOf(
+                                navArgument("id"){
+                                    type = NavType.StringType
+                                    defaultValue = "Loading..."
+                                    nullable = true
+                                },
                                 navArgument("name"){
                                     type = NavType.StringType
                                     defaultValue = "Loading..."
@@ -66,7 +73,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             ){ entry ->
-                            DetailScreen(name = entry.arguments?.getString("name"))
+                            DetailScreen(name = entry.arguments?.getString("id"),
+                                id = entry.arguments?.getString("name"),
+                            )
                         }
                     }
 
@@ -116,9 +125,8 @@ fun MemeCard(meme: Meme,navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate(Screen.DetailScreen.withArgs(meme.name))
-            }
-    ) {
+                navController.navigate(Screen.DetailScreen.withArgs("${meme.id}/${meme.name}"))
+            }    ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -130,8 +138,35 @@ fun MemeCard(meme: Meme,navController: NavController) {
 }
 
 @Composable
-fun DetailScreen(name: String?) {
-    Text(text = "Hello, $name")
+fun DetailScreen(id: String?, name: String?,) {
+
+    Column() {
+        Text(text = "id, $id")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Hello, $name")
+    }
+
+
+//    Card(modifier = Modifier.fillMaxSize(), elevation = CardDefaults.cardElevation()) {
+//
+//        val imageLoader = ImageLoader.Builder(LocalContext.current)
+//            .components { add(ImageDecoderDecoder.Factory()) }.build()
+//
+//        Image(modifier = Modifier.fillMaxSize(),
+//            contentScale = ContentScale.Crop,
+//            painter = rememberAsyncImagePainter(
+//                ImageRequest.Builder(LocalContext.current).data("https://i.imgflip.com/1g8my4.jpg" ?: "").apply(
+//                    block = fun ImageRequest.Builder.(){
+//                        size(Size.ORIGINAL)
+//                    }
+//                ).build(), imageLoader = imageLoader
+//            ),
+//
+//            contentDescription = "Gif"
+//        )
+//
+//    }
+
 }
 
 

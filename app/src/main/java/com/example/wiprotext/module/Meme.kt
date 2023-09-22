@@ -6,5 +6,5 @@ data class Meme(
     @SerializedName("id")
     var id: String,
     var name: String,
-    var url: String
+    var url: String?
 )
