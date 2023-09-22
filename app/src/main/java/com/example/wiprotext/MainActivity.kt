@@ -7,11 +7,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -25,11 +23,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wiprotext.module.DataMeme
 import com.example.wiprotext.module.Meme
 import com.example.wiprotext.ui.theme.WiproTextTheme
 import com.example.wiprotext.viewmodel.MainActivityViewModel
-import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
 
@@ -37,12 +33,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var data = null
+
         viewModel.callApi()
-
-        viewModel.api.observe(this){
-
-        }
 
         setContent {
             WiproTextTheme {
@@ -51,7 +43,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Hello(viewModel)
+                    MemeList(viewModel)
 
                 }
             }
@@ -76,7 +68,7 @@ fun GreetingPreview() {
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Hello(viewModel: MainActivityViewModel) {
+fun MemeList(viewModel: MainActivityViewModel) {
 
     // Observe the API data
     val apiDataState by viewModel.api.observeAsState()
